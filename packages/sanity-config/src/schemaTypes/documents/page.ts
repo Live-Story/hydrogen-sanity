@@ -12,6 +12,13 @@ export const pageType = defineField({
   groups: GROUPS,
   fields: [
     defineField({
+      name: 'liveStory',
+      title: 'Live Story',
+      type: 'reference',
+      to: [{type: 'livestory'}],
+      group: 'editorial',
+    }),
+    defineField({
       name: 'title',
       group: 'editorial',
       type: 'string',

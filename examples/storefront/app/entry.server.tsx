@@ -20,6 +20,27 @@ export default async function handleRequest(
 
   const {nonce, header, NonceProvider} = createContentSecurityPolicy({
     defaultSrc: ['https://cdn.sanity.io'],
+    scriptSrc: [
+      'https://code.jquery.com',
+      'https://assets.livestory.io',
+      'https://cdn.shopify.com',
+      'http://localhost:3000',
+    ],
+    fontSrc: [
+      'https://fonts.gstatic.com',
+      'https://assets.livestory.io',
+    ],
+    styleSrc: ['https://assets.livestory.io','https://fonts.googleapis.com'],
+    mediaSrc: [
+       'https://mediastorage.livestory.io'
+    ],
+    imgSrc: [
+      'http://localhost:3000',
+      'https://cdn.shopify.com',
+      'https://assets.livestory.io',
+      'https://mediastorage.livestory.io'
+    ],
+    connectSrc: ['https://api.livestory.io', 'https://assets.livestory.io'],
     shop: {
       checkoutDomain: env.PUBLIC_CHECKOUT_DOMAIN,
       storeDomain: env.PUBLIC_STORE_DOMAIN,

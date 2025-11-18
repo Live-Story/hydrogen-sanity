@@ -23,6 +23,7 @@ export const PAGE_REFERENCES = [
   {type: 'collection'},
   {type: 'home'},
   {type: 'page'},
+  {type: 'livestory'},
   {type: 'product'},
 ]
 
@@ -34,7 +35,7 @@ export const SANITY_API_VERSION = '2022-10-25'
 // This is the ID in your Shopify admin URL (e.g. 'my-store-name' in https://admin.shopify.com/store/my-store-name).
 // You only need to provide the ID, not the full URL.
 // Set this to enable helper links in document status banners and shortcut links on products and collections.
-export const SHOPIFY_STORE_ID = ''
+export const SHOPIFY_STORE_ID = 'livestoryinc'
 
 // Field groups used through schema types
 export const GROUPS: FieldGroupDefinition[] = [

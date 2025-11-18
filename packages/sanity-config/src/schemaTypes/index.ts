@@ -96,7 +96,9 @@ import {pageType} from './documents/page'
 import {productType} from './documents/product'
 import {productVariantType} from './documents/productVariant'
 
-const documents = [collectionType, colorThemeType, pageType, productType, productVariantType]
+import { LiveStoryDocument as livestory } from 'livestory-sanity-sdk/studio'
+
+const documents = [collectionType, colorThemeType, pageType, productType, productVariantType, livestory]
 
 import {homeType} from './singletons/homeType'
 import {settingsType} from './singletons/settingsType'

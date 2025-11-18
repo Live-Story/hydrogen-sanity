@@ -17,6 +17,13 @@ export const homeType = defineField({
       group: 'editorial',
     }),
     defineField({
+      name: 'liveStory',
+      title: 'Live Story',
+      type: 'reference',
+      to: [{type: 'livestory'}],
+      group: 'editorial',
+    }),
+    defineField({
       name: 'modules',
       type: 'array',
       of: [

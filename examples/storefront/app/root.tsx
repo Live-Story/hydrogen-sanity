@@ -160,6 +160,14 @@ export function Layout({children}: {children?: React.ReactNode}) {
         <link rel="stylesheet" href={appStyles}></link>
         <Meta />
         <Links />
+        <script src="https://code.jquery.com/jquery-3.7.0.min.js" nonce={nonce} />
+        <script src="https://assets.livestory.io/dist/livestory-demo.min.js" nonce={nonce} />
+        <script dangerouslySetInnerHTML={{
+            __html: `
+              window.$ls = window.$ls || function(){(window.$ls.q=window.$ls.q||[]).push(arguments)};
+            `,
+          }} nonce={nonce}
+        />
       </head>
       <body>
         {children}

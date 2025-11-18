@@ -21,6 +21,7 @@
     "groq": "^4.4.1",
     "hydrogen-sanity": "workspace:*",
     "isbot": "^5.1.22",
+    "livestory-sanity-sdk": "^1.0.2",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-router": "7.9.2",

@@ -1,6 +1,11 @@
 import {useLoaderData} from 'react-router';
+import groq, {defineQuery} from 'groq'
 import type {Route} from './+types/pages.$handle';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
+import { PAGE_QUERY as SANITY_PAGE_QUERY } from "~/queries/sanity/page";
+import { Query } from 'hydrogen-sanity';
+import { CacheNone, CacheShort } from '@shopify/hydrogen';
+import LiveStorySanity from 'livestory-sanity-sdk';
 
 export const meta: Route.MetaFunction = ({data}) => {
   return [{title: `Hydrogen | ${data?.page.title ?? ''}`}];
@@ -25,23 +30,38 @@ async function loadCriticalData({context, request, params}: Route.LoaderArgs) {
     throw new Error('Missing page handle');
   }
 
-  const [{page}] = await Promise.all([
+  const language = context.storefront.i18n.language.toLowerCase();
+
+  const [{page}, sanityPage] = await Promise.all([
     context.storefront.query(PAGE_QUERY, {
       variables: {
+        language: context.storefront.i18n.language,
+        country: context.storefront.i18n.country,
         handle: params.handle,
       },
     }),
     // Add other queries here, so that they are loaded in parallel
+    context.sanity.query(defineQuery(SANITY_PAGE_QUERY), { slug: params.handle, language }, {
+      tag: 'page',
+      hydrogen: {
+        debug: {displayName: 'query Page'},
+        cache: CacheNone(),
+      },
+    })
   ]);
 
-  if (!page) {
+  console.log(sanityPage.liveStory);
+
+  if (!page || !sanityPage) {
     throw new Response('Not Found', {status: 404});
   }
 
   redirectIfHandleIsLocalized(request, {handle: params.handle, data: page});
 
   return {
+    language,
     page,
+    sanityPage
   };
 }
 
@@ -55,14 +75,19 @@ function loadDeferredData({context}: Route.LoaderArgs) {
 }
 
 export default function Page() {
-  const {page} = useLoaderData<typeof loader>();
+  const {page, sanityPage, language} = useLoaderData<typeof loader>();
 
   return (
-    <div className="page">
-      <header>
-        <h1>{page.title}</h1>
-      </header>
-      <main dangerouslySetInnerHTML={{__html: page.body}} />
+    <div>
+      {page.title && <h1>{page.title}</h1>}
+      {sanityPage?.liveStory && 
+        (
+          <LiveStorySanity.Storefront.LiveStory
+            value={sanityPage.liveStory}
+            language={language}
+          />
+        )
+      }
     </div>
   );
 }

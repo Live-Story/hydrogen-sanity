@@ -14,6 +14,7 @@ import {
   useImageUrlBuilder,
 } from 'hydrogen-sanity';
 import type {HOMEPAGE_QUERYResult} from 'sanity.generated';
+import LiveStorySanity from 'livestory-sanity-sdk';
 
 export const meta: Route.MetaFunction = () => {
   return [{title: 'Hydrogen | Home'}];
@@ -39,13 +40,37 @@ async function loadCriticalData({context}: Route.LoaderArgs) {
     // Add other queries here, so that they are loaded in parallel
     context.sanity.query(HOMEPAGE_QUERY, undefined, {
       tag: 'homepage',
-      hydrogen: {debug: {displayName: 'query Homepage'}},
+      hydrogen: {debug: {displayName: 'query Homepage'}, cache: context.storefront.CacheNone()},
     }),
   ]);
+  
+  const language = context.storefront.i18n.language.toLowerCase();
+
+  if (homepage.liveStory) {
+    const id = homepage.liveStory.id;
+    const type = homepage.liveStory.type === 'wallgroup' ? 'destination' : 'layout';
+
+    const {data, response} = await context.withCache.fetch(
+      `https://api.livestory.io/content/${type}/${id}?lang_code=${language}`,
+      {
+        method: 'GET',
+      },
+      {
+        cacheKey: `livestory-${type}-${id}-lang-${language}-ssr`,
+        cacheStrategy: context.storefront.CacheShort(),
+        shouldCacheResponse: () => true
+      }
+    );
+
+    if (response.ok) {
+      homepage.liveStory.ssr = data;
+    }
+  }
 
   return {
     featuredCollection: collections.nodes[0],
     homepage,
+    language
   };
 }
 
@@ -70,6 +95,7 @@ function loadDeferredData({context}: Route.LoaderArgs) {
 
 export default function Homepage() {
   const data = useLoaderData<typeof loader>();
+  const language = data.language;
 
   return (
     <div className="home">
@@ -100,6 +126,11 @@ export default function Homepage() {
                 <FeaturedCollection collection={data.featuredCollection} />
                 <RecommendedProducts products={data.recommendedProducts} />
               </>
+            )}
+
+            {/* Live Story homepage component */}
+            {homepage && (
+              <LiveStorySanity.Storefront.LiveStory value={data.homepage.liveStory} language={language} />
             )}
 
             {/* Always show recommended products at the bottom */}
@@ -452,6 +483,11 @@ const HOMEPAGE_QUERY = defineQuery(`
   *[_id == "home"][0]{
     _id,
     _rev,
+    liveStory -> {
+      "id": id,
+      "type": type,
+      "title": title
+    },
     hero{
       title,
       description,

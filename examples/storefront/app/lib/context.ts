@@ -1,4 +1,4 @@
-import {createHydrogenContext} from '@shopify/hydrogen';
+import {createHydrogenContext, createWithCache} from '@shopify/hydrogen';
 import {createSanityContext, type SanityContext} from 'hydrogen-sanity';
 import {PreviewSession} from 'hydrogen-sanity/preview/session';
 import {isPreviewEnabled} from 'hydrogen-sanity/preview';
@@ -21,6 +21,7 @@ type AdditionalContextType = typeof additionalContext;
 declare global {
   interface HydrogenAdditionalContext extends AdditionalContextType {
     sanity: SanityContext;
+    withCache: ReturnType<typeof createWithCache>;
   }
 }
 
@@ -46,6 +47,8 @@ export async function createHydrogenRouterContext(
     AppSession.init(request, [env.SESSION_SECRET]),
     PreviewSession.init(request, [env.SESSION_SECRET]),
   ]);
+
+  const withCache = createWithCache({cache, waitUntil, request})
 
   const sanity = await createSanityContext({
     request,
@@ -85,6 +88,7 @@ export async function createHydrogenRouterContext(
     {
       ...additionalContext,
       sanity,
+      withCache,
     } as const,
   );
 
