@@ -61,6 +61,13 @@ export const productType = defineType({
       type: 'seo',
       group: 'seo',
     }),
+    defineField({
+      name: 'liveStory',
+      title: 'Live Story',
+      type: 'reference',
+      to: [{type: 'livestory'}],
+      group: 'editorial',
+    }),
   ],
   orderings: [
     {

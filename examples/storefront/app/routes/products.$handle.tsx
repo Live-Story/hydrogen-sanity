@@ -7,11 +7,14 @@ import {
   getProductOptions,
   getAdjacentAndFirstAvailableVariants,
   useSelectedOptionInUrlParam,
+  CacheShort,
 } from '@shopify/hydrogen';
 import {ProductPrice} from '~/components/ProductPrice';
 import {ProductImage} from '~/components/ProductImage';
 import {ProductForm} from '~/components/ProductForm';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
+import LiveStorySanity from 'livestory-sanity-sdk';
+import { defineQuery } from 'groq';
 
 export const meta: Route.MetaFunction = ({data}) => {
   return [
@@ -40,16 +43,24 @@ export async function loader(args: Route.LoaderArgs) {
 async function loadCriticalData({context, params, request}: Route.LoaderArgs) {
   const {handle} = params;
   const {storefront} = context;
+  const language = context.storefront.i18n.language.toLowerCase();
 
   if (!handle) {
     throw new Error('Expected product handle to be defined');
   }
 
-  const [{product}] = await Promise.all([
+  const [{product}, sanityProduct] = await Promise.all([
     storefront.query(PRODUCT_QUERY, {
       variables: {handle, selectedOptions: getSelectedProductOptions(request)},
     }),
     // Add other queries here, so that they are loaded in parallel
+    context.sanity.query(SANITY_PRODUCT_QUERY, { slug: params.handle, language }, {
+      tag: 'product',
+      hydrogen: {
+        debug: {displayName: 'query Product'},
+        cache: CacheShort(),
+      },
+    })
   ]);
 
   if (!product?.id) {
@@ -61,6 +72,7 @@ async function loadCriticalData({context, params, request}: Route.LoaderArgs) {
 
   return {
     product,
+    sanityProduct
   };
 }
 
@@ -77,7 +89,7 @@ function loadDeferredData({context, params}: Route.LoaderArgs) {
 }
 
 export default function Product() {
-  const {product} = useLoaderData<typeof loader>();
+  const {product, sanityProduct} = useLoaderData<typeof loader>();
 
   // Optimistically selects a variant with given available variant information
   const selectedVariant = useOptimisticVariant(
@@ -120,6 +132,10 @@ export default function Product() {
         <div dangerouslySetInnerHTML={{__html: descriptionHtml}} />
         <br />
       </div>
+
+      {/* LiveStory component */}
+      <LiveStorySanity.Storefront.LiveStory value={sanityProduct?.liveStory} />
+
       <Analytics.ProductView
         data={{
           products: [
@@ -230,3 +246,18 @@ const PRODUCT_QUERY = `#graphql
   }
   ${PRODUCT_FRAGMENT}
 ` as const;
+
+const SANITY_PRODUCT_QUERY = defineQuery(`
+  *[_type == "product" && store.slug.current == $slug][0]{
+    _id,
+    liveStory->{
+      id,
+      type,
+      title
+    },
+    store {
+      slug
+      title
+    }
+  }
+`);

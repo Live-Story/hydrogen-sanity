@@ -50,8 +50,6 @@ async function loadCriticalData({context, request, params}: Route.LoaderArgs) {
     })
   ]);
 
-  console.log(sanityPage.liveStory);
-
   if (!page || !sanityPage) {
     throw new Response('Not Found', {status: 404});
   }

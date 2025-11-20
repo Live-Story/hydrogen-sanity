@@ -105,12 +105,12 @@ export default function Homepage() {
             {/* Render Sanity homepage content when available */}
             {homepage && (
               <>
-                {homepage.hero && (
+                {/*homepage.hero && (
                   <HeroSection
                     hero={homepage.hero}
                     encodeDataAttribute={encodeDataAttribute.scope(['hero'])}
                   />
-                )}
+                )*/}
                 {homepage.modules && (
                   <ModulesSection
                     modules={homepage.modules}
