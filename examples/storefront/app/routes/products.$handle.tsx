@@ -256,7 +256,7 @@ const SANITY_PRODUCT_QUERY = defineQuery(`
       title
     },
     store {
-      slug
+      slug,
       title
     }
   }
