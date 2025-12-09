@@ -134,7 +134,7 @@ export default function Product() {
       </div>
 
       {/* LiveStory component */}
-      <LiveStorySanity.Storefront.LiveStory value={sanityProduct?.liveStory} />
+      {sanityProduct.liveStory && <LiveStorySanity.Storefront.LiveStory value={sanityProduct?.liveStory} /> }
 
       <Analytics.ProductView
         data={{

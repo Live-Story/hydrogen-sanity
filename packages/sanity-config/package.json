@@ -42,7 +42,7 @@
     "@sanity/icons": "^3.7.4",
     "@sanity/ui": "^3.0.7",
     "@sanity/vision": "^4.5.0",
-    "livestory-sanity-sdk": "^1.0.2",
+    "livestory-sanity-sdk": "^1.0.3",
     "lodash.get": "^4.4.2",
     "pluralize-esm": "^9.0.5",
     "sanity-plugin-hotspot-array": "^3.0.1",
